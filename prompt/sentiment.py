@@ -7,8 +7,7 @@ class SentimentOutput(BaseModel):
     sentiment: str = Field(description="감성 분류: 긍정, 부정, 중립")
     reason: str = Field(description="감성 판단 이유")
 
-# TODO: request prompt message from user
-SENTIMENT_PROMPT_TEMPLATE_MESSAGE = """
+DEFAULT_SENTIMENT_PROMPT_TEMPLATE_MESSAGE = """
 다음 사용자의 메시지를 보고, 감성을 분석하라:
 
 "{input}"
@@ -19,8 +18,9 @@ SENTIMENT_PROMPT_TEMPLATE_MESSAGE = """
 
 SENTIMENT_OUTPUT_PARSER = PydanticOutputParser(pydantic_object=SentimentOutput)
 
-SENTIMENT_PROMPT_TEMPLATE = PromptTemplate.from_template(
-    SENTIMENT_PROMPT_TEMPLATE_MESSAGE
-).partial(
-    format_instructions=SENTIMENT_OUTPUT_PARSER.get_format_instructions()
-)
+def make_sentiment_prompt_template(prompt_message: str) -> PromptTemplate:
+    return PromptTemplate.from_template(
+        prompt_message
+    ).partial(
+        format_instructions=SENTIMENT_OUTPUT_PARSER.get_format_instructions()
+    )
