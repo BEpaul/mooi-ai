@@ -1,0 +1,6 @@
+langchain>=0.1.0
+langchain-community>=0.0.20
+langchain-openai
+openai>=1.0.0
+tqdm
+python-dotenv
