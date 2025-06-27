@@ -15,4 +15,4 @@ LangChain을 기반으로 다양한 프롬프트를 유연하게 실험하는 �
     OPENAI_API_KEY=your-api-key
     ```
 
-2. `python main.py`를 실행합니다.
+2. `streamlit run main.py`를 실행합니다.
