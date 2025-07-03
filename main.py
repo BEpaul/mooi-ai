@@ -15,6 +15,7 @@ from prompt.sentiment import (
 )
 
 load_dotenv()
+print(SENTIMENT_OUTPUT_PARSER.get_format_instructions())
 
 # chat view
 chat_box = ChatBox(
