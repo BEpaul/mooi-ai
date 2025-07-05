@@ -17,12 +17,7 @@ from prompt.sentiment import (
 load_dotenv()
 
 # chat view
-chat_box = ChatBox(
-    use_rich_markdown=True,
-    user_theme="green",
-    assistant_theme="blue"
-)
-
+chat_box = ChatBox(use_rich_markdown=True, user_theme="green", assistant_theme="blue")
 chat_box.init_session()
 chat_box.output_messages()
 
@@ -41,14 +36,8 @@ llm = init_chat_model("gpt-4o-mini", model_provider="openai")
 
 with st.sidebar:
     st.subheader('Prompt Setting')
-    chat_prompt_message = st.text_area(
-        "상담사의 프롬프트 메세지",
-        value=DEFAULT_CHATBOT_PROMPT_TEMPLATE_MESSAGE
-    )
-    analyze_prompt_message = st.text_area(
-        "분석용 프롬프트 메세지",
-        value=DEFAULT_SENTIMENT_PROMPT_TEMPLATE_MESSAGE
-    )
+    chat_prompt_message = st.text_area("상담사 프롬프트", value=DEFAULT_CHATBOT_PROMPT_TEMPLATE_MESSAGE)
+    analyze_prompt_message = st.text_area("분석 프롬프트", value=DEFAULT_SENTIMENT_PROMPT_TEMPLATE_MESSAGE)
 
     if st.button("전체 대화 감성 분석"):
         full_dialogue = "\n".join([history_chat.to_message() for history_chat in get_history_chats()])
@@ -71,6 +60,4 @@ if user_input := st.chat_input('당신의 마음을 표현하세요'):
 
 if st.session_state["sentiment_output"]:
     st.subheader("감성 분석 결과")
-    st.markdown(
-        body=st.session_state["sentiment_output"]
-    )
+    st.markdown(body=st.session_state["sentiment_output"])
