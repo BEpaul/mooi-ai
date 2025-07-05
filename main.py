@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
 import streamlit as st
 from streamlit_chatbox import *
-from langchain_core.runnables import RunnableMap
 from langchain.chat_models import init_chat_model
 
 from prompt.chatbot import (
+    HistoryChat,
     make_chat_prompt_template,
     DEFAULT_CHATBOT_PROMPT_TEMPLATE_MESSAGE
 )
@@ -38,6 +38,12 @@ with st.sidebar:
         value=DEFAULT_SENTIMENT_PROMPT_TEMPLATE_MESSAGE
     )
 
+def get_history_chats():
+    return [
+        HistoryChat(role=elem['role'], message=str(elem['elements'][0]))
+        for elem in chat_box.history
+    ]
+
 # language model
 llm = init_chat_model("gpt-4o-mini", model_provider="openai")
 sentiment_chain = make_sentiment_prompt_template(analyze_prompt_message) | llm | SENTIMENT_OUTPUT_PARSER
@@ -45,10 +51,8 @@ sentiment_chain = make_sentiment_prompt_template(analyze_prompt_message) | llm |
 if user_input := st.chat_input('당신의 마음을 표현하세요'):
     chat_box.user_say(user_input)
 
-    print(chat_box.history)
-
     # dynamic prompt
-    chat_prompt = make_chat_prompt_template(chat_prompt_message, chat_box.history[:-1])
+    chat_prompt = make_chat_prompt_template(chat_prompt_message, get_history_chats()[:-1])
     chat_chain = chat_prompt | llm
 
     # running
@@ -57,11 +61,7 @@ if user_input := st.chat_input('당신의 마음을 표현하세요'):
     chat_box.ai_say(Markdown(answer, title="답변", in_expander=True, expanded=True))
 
 if st.button("감성 분석하기"):
-    full_dialogue = "\n".join([
-        f"사용자: {str(msg['elements'][0])}" if msg["role"] == "user"
-        else f"상담사: {str(msg['elements'][0])}"
-        for msg in chat_box.history
-    ])
+    full_dialogue = "\n".join([history_chat.to_message() for history_chat in get_history_chats()])
     
     # analyze sentiment
     result = sentiment_chain.invoke({"input": full_dialogue})
