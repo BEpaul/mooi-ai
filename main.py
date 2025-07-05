@@ -71,7 +71,6 @@ if user_input := st.chat_input('당신의 마음을 표현하세요'):
 
 if st.session_state["sentiment_output"]:
     st.subheader("감성 분석 결과")
-    st.text_area(
-        value=st.session_state["sentiment_output"],
-        height=150
+    st.markdown(
+        body=st.session_state["sentiment_output"]
     )
