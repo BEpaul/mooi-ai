@@ -1,5 +1,5 @@
 from langchain_core.output_parsers import PydanticOutputParser
 
-from models.sentiment_output import SentimentOutput
+from models import SentimentOutput
 
 SENTIMENT_OUTPUT_PARSER = PydanticOutputParser(pydantic_object=SentimentOutput)

@@ -1,5 +1,5 @@
 from services.chat_service import ChatService
-from models.history_chat import HistoryChat
+from models import HistoryChat
 
 class ChatController:
     def __init__(self, chat_service: ChatService):

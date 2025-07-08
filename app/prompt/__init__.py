@@ -2,3 +2,4 @@ from .defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_PROMPT_MESSAGE
 )
+from .output_parser import SENTIMENT_OUTPUT_PARSER
