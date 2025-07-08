@@ -12,6 +12,7 @@ LangChain을 기반으로 다양한 프롬프트를 유연하게 실험하는 �
 1. `.env` 파일을 다음과 같이 작성합니다.
 
     ```
+    APP_MODE=streamlit
     OPENAI_API_KEY=your-api-key
     ```
 
