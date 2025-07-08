@@ -4,15 +4,15 @@ from streamlit_chatbox import ChatBox, Markdown
 from langchain.chat_models import init_chat_model
 
 from app.models.history_chat import HistoryChat
-from app.services.llm.prompt_defaults import (
+from app.services.prompt import (
     DEFAULT_CHATBOT_PROMPT_TEMPLATE_MESSAGE,
     DEFAULT_SENTIMENT_PROMPT_TEMPLATE_MESSAGE
 )
-from app.services.llm.prompt_factory import (
+from app.services.prompt.prompt_factory import (
     make_chat_prompt_template,
     make_sentiment_prompt_template
 )
-from app.services.llm.output_parser import SENTIMENT_OUTPUT_PARSER
+from app.services.prompt.output_parser import SENTIMENT_OUTPUT_PARSER
 
 load_dotenv()
 
