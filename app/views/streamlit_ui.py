@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from streamlit_chatbox import ChatBox, Markdown
 
@@ -19,6 +20,9 @@ def run_streamlit_ui(chat_controller: ChatController):
         st.session_state["sentiment_output"] = ""
 
     with st.sidebar:
+        if openai_api_key := st.text_input("OpenAI API Key", type="password"):
+            os.environ["OPENAI_API_KEY"] = openai_api_key
+
         st.subheader("Prompt Setting")
         chat_prompt_message = st.text_area(
             "상담사 프롬프트", value=DEFAULT_CHATBOT_PROMPT_MESSAGE
