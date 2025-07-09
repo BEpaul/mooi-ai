@@ -16,7 +16,7 @@ class ChatService:
         chain = chat_prompt | self.llm
         return chain.invoke({"input": user_input}).content
 
-    def analyze_sentiment(self, analyze_prompt_message, full_dialogue):
+    def analyze_sentiment(self, analyze_prompt_message: str, full_dialogue: str):
         sentiment_chain = (
             make_sentiment_prompt_template(analyze_prompt_message)
             | self.llm
