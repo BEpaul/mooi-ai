@@ -10,6 +10,16 @@ from controllers.chat_controller import ChatController
 
 
 def run_streamlit_ui(chat_controller: ChatController):
+    st.title("MOOI Project")
+
+    openai_api_key = st.text_input("OpenAI API Key", type="password")
+
+    if not openai_api_key:
+        st.warning("API Key 입력 시 대화를 시작할 수 있습니다.")
+        st.stop()
+
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+
     chat_box = ChatBox(
         use_rich_markdown=True, user_theme="green", assistant_theme="blue"
     )
@@ -20,8 +30,6 @@ def run_streamlit_ui(chat_controller: ChatController):
         st.session_state["sentiment_output"] = ""
 
     with st.sidebar:
-        if openai_api_key := st.text_input("OpenAI API Key", type="password"):
-            os.environ["OPENAI_API_KEY"] = openai_api_key
 
         st.subheader("Prompt Setting")
         chat_prompt_message = st.text_area(
