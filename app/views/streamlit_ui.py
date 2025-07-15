@@ -10,10 +10,10 @@ from prompt.defaults import (
 
 
 def init_session():
-    if "sentiment_output" not in st.session_state:
-        st.session_state["sentiment_output"] = ""
-    if "history" not in st.session_state:
-        st.session_state["history"] = []
+    st.session_state.setdefault("sentiment_output", "")
+    st.session_state.setdefault("history", [])
+    st.session_state.setdefault("saved_histories", {})
+    st.session_state.setdefault("current_session", None)
 
 
 def run_api_key_ui():
@@ -27,13 +27,38 @@ def run_api_key_ui():
 
 def run_chat_ui(chat_controller: ChatController):
     with st.sidebar:
-        st.subheader("Prompt Setting")
+        st.subheader("프롬프트 입력")
         chat_prompt_message = st.text_area(
             "상담사 프롬프트", value=DEFAULT_CHATBOT_PROMPT_MESSAGE
         )
         analyze_prompt_message = st.text_area(
             "분석 프롬프트", value=DEFAULT_SENTIMENT_PROMPT_MESSAGE
         )
+
+        st.subheader("대화 관리")
+
+        options = list(st.session_state["saved_histories"].keys())
+        selected = st.selectbox("저장된 대화 불러오기", ["새 대화 시작"] + options)
+
+        if selected != "새 대화 시작":
+            st.session_state["history"] = st.session_state["saved_histories"][selected]
+            st.session_state["current_session"] = selected
+            st.experimental_rerun()
+
+        # 현재 대화 저장
+        if st.button("현재 대화 저장"):
+            session_name = f"대화 {len(st.session_state['saved_histories']) + 1}"
+            st.session_state["saved_histories"][session_name] = st.session_state[
+                "history"
+            ].copy()
+            st.session_state["current_session"] = session_name
+            st.success(f"'{session_name}'으로 저장됨")
+
+        # 대화 종료 (새로운 대화 시작)
+        if st.button("대화 종료 및 새 대화"):
+            st.session_state["history"] = []
+            st.session_state["current_session"] = None
+            st.rerun()
 
         if st.button("전체 대화 감성 분석"):
             st.session_state["sentiment_output"] = chat_controller.analyze_sentiment(
