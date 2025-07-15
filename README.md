@@ -16,8 +16,8 @@ LangChain을 기반으로 다양한 프롬프트를 유연하게 실험하는 �
 1. `.env` 파일을 다음과 같이 작성합니다.
 
     ```
-    APP_MODE=streamlit
+    APP_MODE=debug
     OPENAI_API_KEY=your-api-key
     ```
 
-2. `streamlit run main.py`를 실행합니다.
+2. `streamlit run app/main.py`를 실행합니다.

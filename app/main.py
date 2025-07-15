@@ -1,21 +1,34 @@
 import sys
 
-from services.chat_service import ChatService
 from config import settings
 from controllers.chat_controller import ChatController
+from services.chat_service import ChatService
 
 
 def run_streamlit_app():
-    from views.streamlit_ui import run_streamlit_ui
+    from views.streamlit_ui import run_chat_ui, run_api_key_ui
 
     chat_service = ChatService()
     chat_controller = ChatController(chat_service)
-    run_streamlit_ui(chat_controller)
+    run_api_key_ui()
+    run_chat_ui(chat_controller)
+
+
+def run_streamlit_debug_app():
+    from views.streamlit_ui import run_chat_ui
+    from dotenv import load_dotenv
+
+    chat_service = ChatService()
+    chat_controller = ChatController(chat_service)
+    load_dotenv()
+    run_chat_ui(chat_controller)
 
 
 def main():
     mode = settings.APP_MODE
-    if mode == "streamlit":
+    if mode == "debug":
+        run_streamlit_debug_app()
+    elif mode == "streamlit":
         run_streamlit_app()
     elif mode == "fastapi":
         print(f"[WARN] Not Implemented yet.")

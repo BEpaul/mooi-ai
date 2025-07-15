@@ -9,7 +9,7 @@ from prompt.defaults import (
 )
 
 
-def run_streamlit_ui(chat_controller: ChatController):
+def run_api_key_ui():
     st.title("MOOI Project")
 
     openai_api_key = st.text_input("OpenAI API Key", type="password")
@@ -20,6 +20,8 @@ def run_streamlit_ui(chat_controller: ChatController):
 
     os.environ["OPENAI_API_KEY"] = openai_api_key
 
+
+def run_chat_ui(chat_controller: ChatController):
     if "sentiment_output" not in st.session_state:
         st.session_state["sentiment_output"] = ""
     if "history" not in st.session_state:
