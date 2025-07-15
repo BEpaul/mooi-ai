@@ -2,7 +2,7 @@ import os
 import streamlit as st
 
 from controllers.chat_controller import ChatController
-from models import HistoryChat
+from models import HistoryChat, TodaySentimentReportOutput
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
@@ -75,6 +75,23 @@ def run_sentiment_analyze_button(chat_controller: ChatController):
         )
 
 
+def run_sentiment_analyze_report(report: TodaySentimentReportOutput):
+    st.header("감성 분석 결과")
+
+    st.subheader("오늘 있었던 일 요약")
+    st.markdown("\n".join(["- " + summary.strip() for summary in report.summaries]))
+
+    st.subheader("오늘의 주요 키워드")
+    st.markdown(",".join([keyword.strip() for keyword in report.keywords]))
+
+    st.subheader("오늘의 감정 변화")
+    st.markdown(",".join([sent.strip() for sent in report.sentiment_changes]))
+
+    st.subheader("오늘의 감정 지수")
+    st.markdown(f"스트레스: {report.stress_level}, 행복: {report.hapiness_level}")
+    st.markdown(f"총평: {report.sentiment_review}")
+
+
 def run_chat_ui(chat_controller: ChatController):
     with st.sidebar:
         run_prompt_ui()
@@ -100,21 +117,4 @@ def run_chat_ui(chat_controller: ChatController):
         st.rerun()
 
     if st.session_state["sentiment_output"]:
-        st.header("감성 분석 결과")
-        today_report = st.session_state["sentiment_output"]
-
-        st.subheader("오늘 있었던 일 요약")
-        st.markdown(
-            "\n".join(["- " + summary.strip() for summary in today_report.summaries])
-        )
-
-        st.subheader("오늘의 주요 키워드")
-        st.markdown(",".join([keyword.strip() for keyword in today_report.keywords]))
-
-        st.subheader("오늘의 감정 변화")
-        st.markdown(",".join([sent.strip() for sent in today_report.sentiment_changes]))
-
-        st.subheader("오늘의 감정 지수")
-        st.markdown(
-            f"스트레스 지수: {today_report.stress_level}, 행복 지수: {today_report.hapiness_level}\n\n 총평: {today_report.sentiment_review}"
-        )
+        run_sentiment_analyze_report(st.session_state["sentiment_output"])
