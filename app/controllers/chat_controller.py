@@ -1,5 +1,5 @@
 from services.chat_service import ChatService
-from models import HistoryChat
+from models import HistoryChat, TodaySentimentReportOutput
 
 
 class ChatController:
@@ -12,7 +12,7 @@ class ChatController:
         reference_message: str,
         analyze_message: str,
         histories: dict[str, list[HistoryChat]],
-    ):
+    ) -> TodaySentimentReportOutput:
         result = self.chat_service.analyze_sentiment(
             role_message, reference_message, analyze_message, histories
         )

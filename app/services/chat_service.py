@@ -1,6 +1,6 @@
 from langchain.chat_models import init_chat_model
 
-from models.history_chat import HistoryChat
+from models import HistoryChat, TodaySentimentReportOutput
 from prompt.prompt_factory import (
     make_chat_prompt_template,
     make_sentiment_prompt_template,
@@ -28,7 +28,7 @@ class ChatService:
         reference_message: str,
         analyze_message: str,
         histories: dict[str, list[HistoryChat]],
-    ):
+    ) -> TodaySentimentReportOutput:
         dialog_message = ""
         for name, history in histories.items():
             dialog_message += name.strip() + ":\n"
