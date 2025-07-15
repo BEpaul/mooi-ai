@@ -10,8 +10,8 @@ def run_streamlit_app():
 
     chat_service = ChatService()
     chat_controller = ChatController(chat_service)
-    init_session()
     run_api_key_ui()
+    init_session()
     run_chat_ui(chat_controller)
 
 
