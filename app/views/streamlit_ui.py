@@ -31,43 +31,45 @@ def run_api_key_ui():
     os.environ["OPENAI_API_KEY"] = openai_api_key
 
 
+def run_prompt_ui():
+    st.subheader("프롬프트 입력")
+    st.text_area("상담사 프롬프트", key="chat_prompt_message")
+    st.text_area("분석 프롬프트", key="analyze_prompt_message")
+
+
+def run_conversation_management_ui():
+    st.subheader("대화 관리")
+
+    if st.button("새 대화 시작"):
+        new_idx = len(st.session_state["saved_histories"]) + 1
+        new_name = f"대화 {new_idx}"
+        st.session_state["saved_histories"][new_name] = []
+        st.session_state["current_session"] = new_name
+        st.rerun()
+
+    options = list(st.session_state["saved_histories"].keys())
+    current = st.session_state["current_session"]
+    selected = st.selectbox("대화 선택", options, index=options.index(current))
+    if selected != current:
+        st.session_state["current_session"] = selected
+        st.rerun()
+
+
+def run_sentiment_analyze_button(chat_controller: ChatController):
+    if st.button("전체 대화 감성 분석"):
+        st.session_state["sentiment_output"] = chat_controller.analyze_sentiment(
+            st.session_state["analyze_prompt_message"],
+            st.session_state["saved_histories"][st.session_state["current_session"]],
+        )
+
+
 def run_chat_ui(chat_controller: ChatController):
     with st.sidebar:
-        st.subheader("프롬프트 입력")
-        st.session_state["chat_prompt_message"] = st.text_area(
-            "상담사 프롬프트", value=DEFAULT_CHATBOT_PROMPT_MESSAGE
-        )
-        st.session_state["analyze_prompt_message"] = st.text_area(
-            "분석 프롬프트", value=DEFAULT_SENTIMENT_PROMPT_MESSAGE
-        )
-
-        st.subheader("대화 관리")
-
-        if st.button("새 대화 시작"):
-            new_idx = len(st.session_state["saved_histories"]) + 1
-            new_name = f"대화 {new_idx}"
-            st.session_state["saved_histories"][new_name] = []
-            st.session_state["current_session"] = new_name
-            st.rerun()
-
-        options = list(st.session_state["saved_histories"].keys())
-        current = st.session_state["current_session"]
-        selected = st.selectbox("대화 선택", options, index=options.index(current))
-
-        if selected != current:
-            st.session_state["current_session"] = selected
-            st.rerun()
-
-        if st.button("전체 대화 감성 분석"):
-            st.session_state["sentiment_output"] = chat_controller.analyze_sentiment(
-                st.session_state["analyze_prompt_message"],
-                st.session_state["saved_histories"][
-                    st.session_state["current_session"]
-                ],
-            )
+        run_prompt_ui()
+        run_conversation_management_ui()
+        run_sentiment_analyze_button(chat_controller)
 
     session = st.session_state["current_session"]
-    print(st.session_state["saved_histories"][session])
 
     for chat in st.session_state["saved_histories"][session]:
         with st.chat_message(chat.role):
