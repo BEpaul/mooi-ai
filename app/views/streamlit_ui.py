@@ -70,24 +70,21 @@ def run_chat_ui(chat_controller: ChatController):
         run_sentiment_analyze_button(chat_controller)
 
     session = st.session_state["current_session"]
+    chat_history = st.session_state["saved_histories"][session]
 
-    for chat in st.session_state["saved_histories"][session]:
+    for chat in chat_history:
         with st.chat_message(chat.role):
             st.markdown(chat.message)
 
     if user_input := st.chat_input("당신의 마음을 표현하세요"):
-        st.session_state["saved_histories"][session].append(
-            HistoryChat(role="user", message=user_input)
-        )
+        chat_history.append(HistoryChat(role="user", message=user_input))
 
         answer = chat_controller.generate_response(
             st.session_state["chat_prompt_message"],
-            st.session_state["saved_histories"][session][:-1],
+            chat_history[:-1],
             user_input,
         )
-        st.session_state["saved_histories"][session].append(
-            HistoryChat(role="assistant", message=answer)
-        )
+        chat_history.append(HistoryChat(role="assistant", message=answer))
         st.rerun()
 
     if st.session_state["sentiment_output"]:
