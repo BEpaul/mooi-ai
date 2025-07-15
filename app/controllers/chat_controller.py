@@ -6,10 +6,17 @@ class ChatController:
     def __init__(self, chat_service: ChatService):
         self.chat_service = chat_service
 
-    def analyze_sentiment(self, prompt: str, history_chats: list[HistoryChat]):
-        full_dialogue = "\n".join([h.to_message() for h in history_chats])
-        result = self.chat_service.analyze_sentiment(prompt, full_dialogue)
-        return f"분류: {result.sentiment}\n\n이유: {result.reason}"
+    def analyze_sentiment(
+        self,
+        role_message: str,
+        reference_message: str,
+        analyze_message: str,
+        histories: dict[str, list[HistoryChat]],
+    ):
+        result = self.chat_service.analyze_sentiment(
+            role_message, reference_message, analyze_message, histories
+        )
+        return result
 
     def generate_response(
         self, prompt: str, history_chats: list[HistoryChat], user_input: str

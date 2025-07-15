@@ -5,7 +5,9 @@ from controllers.chat_controller import ChatController
 from models import HistoryChat
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
-    DEFAULT_SENTIMENT_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
 )
 
 
@@ -15,7 +17,13 @@ def init_session():
     st.session_state.setdefault("sentiment_output", None)
     st.session_state.setdefault("chat_prompt_message", DEFAULT_CHATBOT_PROMPT_MESSAGE)
     st.session_state.setdefault(
-        "analyze_prompt_message", DEFAULT_SENTIMENT_PROMPT_MESSAGE
+        "analyze_role_prompt_message", DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE
+    )
+    st.session_state.setdefault(
+        "analyze_reference_prompt_message", DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE
+    )
+    st.session_state.setdefault(
+        "analyze_content_prompt_message", DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE
     )
 
     if "대화 1" not in st.session_state["saved_histories"]:
@@ -32,9 +40,12 @@ def run_api_key_ui():
 
 
 def run_prompt_ui():
-    st.subheader("프롬프트 입력")
-    st.text_area("상담사 프롬프트", key="chat_prompt_message")
-    st.text_area("분석 프롬프트", key="analyze_prompt_message")
+    st.header("프롬프트 입력")
+    st.text_area("상담사 응답 프롬프트", key="chat_prompt_message")
+    st.subheader("분석 프롬프트")
+    st.text_area("역할 프롬프트", key="analyze_role_prompt_message")
+    st.text_area("기록 참조 프롬프트", key="analyze_reference_prompt_message")
+    st.text_area("분석 항목 프롬프트", key="analyze_content_prompt_message")
 
 
 def run_conversation_management_ui():
@@ -58,8 +69,10 @@ def run_conversation_management_ui():
 def run_sentiment_analyze_button(chat_controller: ChatController):
     if st.button("전체 대화 감성 분석"):
         st.session_state["sentiment_output"] = chat_controller.analyze_sentiment(
-            st.session_state["analyze_prompt_message"],
-            st.session_state["saved_histories"][st.session_state["current_session"]],
+            st.session_state["analyze_role_prompt_message"],
+            st.session_state["analyze_reference_prompt_message"],
+            st.session_state["analyze_content_prompt_message"],
+            st.session_state["saved_histories"],
         )
 
 
