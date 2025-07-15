@@ -63,7 +63,6 @@ def run_conversation_management_ui():
     selected = st.selectbox("대화 선택", options, index=options.index(current))
     if selected != current:
         st.session_state["current_session"] = selected
-        st.session_state["sentiment_output"] = None
 
 
 def run_sentiment_analyze_button(chat_controller: ChatController):
