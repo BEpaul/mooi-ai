@@ -22,6 +22,6 @@ def setup_streamlit_app(chat_service: ChatService, debug: bool = False):
     run_main_ui(chat_service)
 
 
-def run_streamlit_app(debug: bool):
+def run_streamlit_app(debug: bool = False):
     chat_service = build_streamlit_service()
     setup_streamlit_app(chat_service, debug)
