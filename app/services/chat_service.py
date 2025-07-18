@@ -6,12 +6,14 @@ from prompt.prompt_factory import (
     make_sentiment_prompt_template,
 )
 from prompt import SENTIMENT_OUTPUT_PARSER
+from repositories import ChatSessionRepository
 
 
 class ChatService:
-    def __init__(self):
+    def __init__(self, repo: ChatSessionRepository):
         # TODO: consider stream mode
         self.llm = init_chat_model("gpt-4o-mini", model_provider="openai")
+        self.repo = repo
 
     def generate_chat_response(
         self,

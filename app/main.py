@@ -1,13 +1,15 @@
 import sys
 
 from config import settings
+from repositories import StreamlitSessionRepository
 from services import ChatService
 
 
 def run_streamlit_app():
     from views.streamlit_ui import run_chat_ui, run_api_key_ui, init_session
 
-    chat_service = ChatService()
+    repo = StreamlitSessionRepository()
+    chat_service = ChatService(repo)
     run_api_key_ui()
     init_session()
     run_chat_ui(chat_service)
@@ -17,7 +19,8 @@ def run_streamlit_debug_app():
     from views.streamlit_ui import run_chat_ui, init_session
     from dotenv import load_dotenv
 
-    chat_service = ChatService()
+    repo = StreamlitSessionRepository()
+    chat_service = ChatService(repo)
     load_dotenv()
     init_session()
     run_chat_ui(chat_service)
