@@ -18,7 +18,7 @@ class ChatService:
         chat_prompt_message: str,
         history_chats: list[HistoryChat],
         user_input: str,
-    ):
+    ) -> str:
         chat_prompt = make_chat_prompt_template(chat_prompt_message, history_chats)
         chain = chat_prompt | self.llm
         return chain.invoke({"input": user_input}).content
