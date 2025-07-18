@@ -1,10 +1,10 @@
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
-from models import HistoryChat
+from models import Chat
 from prompt.defaults import SENTIMENT_REPORT_FORMATTING_MESSAGE
 
 
-def make_chat_prompt_template(system_message: str, history: list[HistoryChat]):
+def make_chat_prompt_template(system_message: str, history: list[Chat]):
     messages = [("system", system_message)]
     for chat in history:
         role = "human" if chat.role == "user" else "assistant"

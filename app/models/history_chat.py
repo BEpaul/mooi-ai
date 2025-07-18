@@ -2,7 +2,7 @@ from langchain_core.prompts import AIMessagePromptTemplate, HumanMessagePromptTe
 from pydantic import BaseModel, Field
 
 
-class HistoryChat(BaseModel):
+class Chat(BaseModel):
     role: str = Field(description="화자 분류: user, assistant")
     message: str = Field(description="텍스트 메세지")
 

@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 
-from models import HistoryChat, TodaySentimentReportOutput
+from models import Chat, TodaySentimentReportOutput
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
@@ -106,14 +106,14 @@ def run_chat_ui(chat_service: ChatService):
             st.markdown(chat.message)
 
     if user_input := st.chat_input("당신의 마음을 표현하세요"):
-        chat_history.append(HistoryChat(role="user", message=user_input))
+        chat_history.append(Chat(role="user", message=user_input))
 
         answer = chat_service.generate_chat_response(
             st.session_state["chat_prompt_message"],
             chat_history[:-1],
             user_input,
         )
-        chat_history.append(HistoryChat(role="assistant", message=answer))
+        chat_history.append(Chat(role="assistant", message=answer))
         st.rerun()
 
     if st.session_state["sentiment_output"]:
