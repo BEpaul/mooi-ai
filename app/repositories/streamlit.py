@@ -1,7 +1,7 @@
 import streamlit as st
 
 from repositories import ChatSessionRepository
-from models import ChatSession
+from models import Chat, ChatSession
 
 
 class StreamlitSessionRepository(ChatSessionRepository):
@@ -14,6 +14,12 @@ class StreamlitSessionRepository(ChatSessionRepository):
 
     def save(self, session: ChatSession) -> None:
         st.session_state["chat_sessions"][session.session_id] = session
+
+    def append(self, session_id: str, chat: Chat):
+        session = self.get(session_id)
+        if session:
+            session.add_message(chat)
+            self.save(session)
 
     def list(self) -> list[ChatSession]:
         return list(st.session_state["chat_sessions"].values())

@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from langchain_core.prompts import AIMessagePromptTemplate, HumanMessagePromptTemplate
 from pydantic import BaseModel, Field
 from typing import Literal, Optional
@@ -20,7 +19,6 @@ class Chat(BaseModel):
 class ChatSession(BaseModel):
     session_id: str = Field(..., description="대화 세션 고유 ID")
     messages: list[Chat] = Field(default_factory=list, description="대화 메세지 리스트")
-    created_at: datetime = Field(default_factory=datetime.now(timezone.utc))
     analyzed: bool = False
     last_summary: Optional[str] = None
 

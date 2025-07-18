@@ -11,7 +11,7 @@ def run_streamlit_app():
     repo = StreamlitSessionRepository()
     chat_service = ChatService(repo)
     run_api_key_ui()
-    init_session()
+    init_session(chat_service)
     run_chat_ui(chat_service)
 
 
@@ -22,7 +22,7 @@ def run_streamlit_debug_app():
     repo = StreamlitSessionRepository()
     chat_service = ChatService(repo)
     load_dotenv()
-    init_session()
+    init_session(chat_service)
     run_chat_ui(chat_service)
 
 

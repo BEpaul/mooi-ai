@@ -1,4 +1,4 @@
-from models import ChatSession
+from models import Chat, ChatSession
 from repositories import ChatSessionRepository
 
 
@@ -11,6 +11,11 @@ class InMemoryChatSessionRepository(ChatSessionRepository):
 
     def save(self, session: ChatSession) -> None:
         self._store[session.session_id] = session
+
+    def append(self, session_id: str, chat: Chat) -> None:
+        session = self.get(session_id)
+        if session is not None:
+            session.add_message(chat)
 
     def list(self) -> list[ChatSession]:
         return list(self._store.values())
