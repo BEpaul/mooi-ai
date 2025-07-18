@@ -29,12 +29,7 @@ class ChatService:
         analyze_message: str,
         histories: dict[str, list[HistoryChat]],
     ) -> TodaySentimentReportOutput:
-        dialog_message = ""
-        for name, history in histories.items():
-            dialog_message += name.strip() + ":\n"
-            for chat in history:
-                dialog_message += chat.to_message() + "\n"
-
+        dialog_message = self._make_dialog_message(histories)
         sentiment_chain = (
             make_sentiment_prompt_template(
                 role_message, reference_message, analyze_message
@@ -48,3 +43,12 @@ class ChatService:
                 "format_instructions": SENTIMENT_OUTPUT_PARSER.get_format_instructions(),
             }
         )
+
+    def _make_dialog_message(self, histories: dict[str, list[HistoryChat]]) -> str:
+        lines = []
+        for name, history in histories.items():
+            lines.append(name.strip() + ":")
+            for chat in history:
+                lines.append(chat.to_message())
+            lines.append("")
+        return "\n".join(lines)
