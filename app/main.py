@@ -1,35 +1,5 @@
 from config import settings
-from repositories import StreamlitSessionRepository
-from services import ChatService
-
-
-def build_streamlit_service():
-    repo = StreamlitSessionRepository()
-    return ChatService(repo)
-
-
-def setup_streamlit_app(chat_service: ChatService, debug: bool = False):
-    from views.streamlit_ui import run_chat_ui, run_api_key_ui, init_session
-
-    if debug:
-        from dotenv import load_dotenv
-
-        load_dotenv()
-    else:
-        run_api_key_ui()
-
-    init_session(chat_service)
-    run_chat_ui(chat_service)
-
-
-def run_streamlit_app():
-    chat_service = build_streamlit_service()
-    setup_streamlit_app(chat_service, debug=False)
-
-
-def run_streamlit_debug_app():
-    chat_service = build_streamlit_service()
-    setup_streamlit_app(chat_service, debug=True)
+from controllers.streamlit.main_controller import run_streamlit_app
 
 
 # TODO: make FastAPI runnable
@@ -40,7 +10,7 @@ def run_fastapi_app():
 def main():
     mode = settings.APP_MODE
     if mode == "debug":
-        run_streamlit_debug_app()
+        run_streamlit_app(debug=True)
     elif mode == "streamlit":
         run_streamlit_app()
     elif mode == "fastapi":
