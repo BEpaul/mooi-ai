@@ -10,6 +10,7 @@ from prompt import SENTIMENT_OUTPUT_PARSER
 
 class ChatService:
     def __init__(self):
+        # TODO: consider stream mode
         self.llm = init_chat_model("gpt-4o-mini", model_provider="openai")
 
     def generate_chat_response(
@@ -30,13 +31,10 @@ class ChatService:
         histories: dict[str, list[HistoryChat]],
     ) -> TodaySentimentReportOutput:
         dialog_message = self._make_dialog_message(histories)
-        sentiment_chain = (
-            make_sentiment_prompt_template(
-                role_message, reference_message, analyze_message
-            )
-            | self.llm
-            | SENTIMENT_OUTPUT_PARSER
+        sentiment_prompt = make_sentiment_prompt_template(
+            role_message, reference_message, analyze_message
         )
+        sentiment_chain = sentiment_prompt | self.llm | SENTIMENT_OUTPUT_PARSER
         return sentiment_chain.invoke(
             {
                 "dialog_message": dialog_message,
