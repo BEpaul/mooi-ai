@@ -1,6 +1,6 @@
 from langchain.chat_models import init_chat_model
 
-from models import Chat, TodaySentimentReportOutput
+from models import TodaySentimentReportOutput
 from prompt.prompt_factory import (
     make_chat_prompt_template,
     make_sentiment_prompt_template,
