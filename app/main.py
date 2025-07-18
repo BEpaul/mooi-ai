@@ -1,10 +1,6 @@
 from config import settings
-from controllers.streamlit.main_controller import run_streamlit_app
-
-
-# TODO: make FastAPI runnable
-def run_fastapi_app():
-    raise NotImplementedError("FastAPI mode is not implemented.")
+from controllers.fastapi.app import run_fastapi_app
+from controllers.streamlit.app import run_streamlit_app
 
 
 def main():
