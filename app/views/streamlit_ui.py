@@ -1,7 +1,6 @@
 import os
 import streamlit as st
 
-from controllers.chat_controller import ChatController
 from models import HistoryChat, TodaySentimentReportOutput
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
@@ -9,6 +8,7 @@ from prompt.defaults import (
     DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
 )
+from services import ChatService
 
 
 def init_session():
@@ -65,9 +65,9 @@ def run_conversation_management_ui():
         st.session_state["current_session"] = selected
 
 
-def run_sentiment_analyze_button(chat_controller: ChatController):
+def run_sentiment_analyze_button(chat_service: ChatService):
     if st.button("전체 대화 감성 분석"):
-        st.session_state["sentiment_output"] = chat_controller.analyze_sentiment(
+        st.session_state["sentiment_output"] = chat_service.analyze_sentiment(
             st.session_state["analyze_role_prompt_message"],
             st.session_state["analyze_reference_prompt_message"],
             st.session_state["analyze_content_prompt_message"],
@@ -92,11 +92,11 @@ def run_sentiment_analyze_report(report: TodaySentimentReportOutput):
     st.markdown(f"총평: {report.sentiment_review}")
 
 
-def run_chat_ui(chat_controller: ChatController):
+def run_chat_ui(chat_service: ChatService):
     with st.sidebar:
         run_prompt_ui()
         run_conversation_management_ui()
-        run_sentiment_analyze_button(chat_controller)
+        run_sentiment_analyze_button(chat_service)
 
     session = st.session_state["current_session"]
     chat_history = st.session_state["saved_histories"][session]
@@ -108,7 +108,7 @@ def run_chat_ui(chat_controller: ChatController):
     if user_input := st.chat_input("당신의 마음을 표현하세요"):
         chat_history.append(HistoryChat(role="user", message=user_input))
 
-        answer = chat_controller.generate_response(
+        answer = chat_service.generate_chat_response(
             st.session_state["chat_prompt_message"],
             chat_history[:-1],
             user_input,
