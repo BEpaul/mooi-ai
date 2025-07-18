@@ -6,20 +6,23 @@ from prompt.prompt_factory import (
     make_sentiment_prompt_template,
 )
 from prompt import SENTIMENT_OUTPUT_PARSER
+from repositories import ChatSessionRepository
 
 
 class ChatService:
-    def __init__(self):
+    def __init__(self, repo: ChatSessionRepository):
         # TODO: consider stream mode
         self.llm = init_chat_model("gpt-4o-mini", model_provider="openai")
+        self.repo = repo
 
     def generate_chat_response(
         self,
         chat_prompt_message: str,
-        history_chats: list[Chat],
+        session_id: str,
         user_input: str,
     ) -> str:
-        chat_prompt = make_chat_prompt_template(chat_prompt_message, history_chats)
+        chat_session = self.repo.get(session_id)
+        chat_prompt = make_chat_prompt_template(chat_prompt_message, chat_session)
         chain = chat_prompt | self.llm
         return chain.invoke({"input": user_input}).content
 
@@ -28,9 +31,8 @@ class ChatService:
         role_message: str,
         reference_message: str,
         analyze_message: str,
-        histories: dict[str, list[Chat]],
     ) -> TodaySentimentReportOutput:
-        dialog_message = self._make_dialog_message(histories)
+        dialog_message = self._make_dialog_message()
         sentiment_prompt = make_sentiment_prompt_template(
             role_message, reference_message, analyze_message
         )
@@ -42,11 +44,10 @@ class ChatService:
             }
         )
 
-    def _make_dialog_message(self, histories: dict[str, list[Chat]]) -> str:
+    def _make_dialog_message(self) -> str:
         lines = []
-        for name, history in histories.items():
-            lines.append(name.strip() + ":")
-            for chat in history:
-                lines.append(chat.to_message())
+        for sess in self.repo.list():
+            lines.append(sess.session_id.strip() + ":")
+            lines.append(sess.to_dialog_string())
             lines.append("")
         return "\n".join(lines)

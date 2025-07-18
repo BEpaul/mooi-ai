@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 
-from models import Chat, TodaySentimentReportOutput
+from models import Chat, ChatSession, TodaySentimentReportOutput
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
@@ -11,8 +11,7 @@ from prompt.defaults import (
 from services import ChatService
 
 
-def init_session():
-    st.session_state.setdefault("saved_histories", {})
+def init_session(chat_service: ChatService):
     st.session_state.setdefault("current_session", "대화 1")
     st.session_state.setdefault("sentiment_output", None)
     st.session_state.setdefault("chat_prompt_message", DEFAULT_CHATBOT_PROMPT_MESSAGE)
@@ -26,8 +25,8 @@ def init_session():
         "analyze_content_prompt_message", DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE
     )
 
-    if "대화 1" not in st.session_state["saved_histories"]:
-        st.session_state["saved_histories"]["대화 1"] = []
+    if chat_service.repo.get("대화 1") is None:
+        chat_service.repo.save(ChatSession(session_id="대화 1"))
 
 
 def run_api_key_ui():
@@ -48,17 +47,17 @@ def run_prompt_ui():
     st.text_area("분석 항목 프롬프트", key="analyze_content_prompt_message")
 
 
-def run_conversation_management_ui():
+def run_conversation_management_ui(chat_service: ChatService):
     st.subheader("대화 관리")
 
     if st.button("새 대화 시작"):
-        new_idx = len(st.session_state["saved_histories"]) + 1
+        new_idx = len(chat_service.repo.list()) + 1
         new_name = f"대화 {new_idx}"
-        st.session_state["saved_histories"][new_name] = []
+        chat_service.repo.save(ChatSession(session_id=new_name))
         st.session_state["current_session"] = new_name
         st.rerun()
 
-    options = list(st.session_state["saved_histories"].keys())
+    options = [sess.session_id for sess in chat_service.repo.list()]
     current = st.session_state["current_session"]
     selected = st.selectbox("대화 선택", options, index=options.index(current))
     if selected != current:
@@ -67,12 +66,13 @@ def run_conversation_management_ui():
 
 def run_sentiment_analyze_button(chat_service: ChatService):
     if st.button("전체 대화 감성 분석"):
-        st.session_state["sentiment_output"] = chat_service.analyze_sentiment(
+        result = chat_service.analyze_sentiment(
             st.session_state["analyze_role_prompt_message"],
             st.session_state["analyze_reference_prompt_message"],
             st.session_state["analyze_content_prompt_message"],
-            st.session_state["saved_histories"],
         )
+        print("분석 결과:", result)
+        st.session_state["sentiment_output"] = result
 
 
 def run_sentiment_analyze_report(report: TodaySentimentReportOutput):
@@ -95,25 +95,25 @@ def run_sentiment_analyze_report(report: TodaySentimentReportOutput):
 def run_chat_ui(chat_service: ChatService):
     with st.sidebar:
         run_prompt_ui()
-        run_conversation_management_ui()
+        run_conversation_management_ui(chat_service)
         run_sentiment_analyze_button(chat_service)
 
-    session = st.session_state["current_session"]
-    chat_history = st.session_state["saved_histories"][session]
+    session_id = st.session_state["current_session"]
+    session = chat_service.repo.get(session_id)
 
-    for chat in chat_history:
+    for chat in session.messages:
         with st.chat_message(chat.role):
             st.markdown(chat.message)
 
     if user_input := st.chat_input("당신의 마음을 표현하세요"):
-        chat_history.append(Chat(role="user", message=user_input))
-
+        session.add_message(Chat(role="user", message=user_input))
         answer = chat_service.generate_chat_response(
             st.session_state["chat_prompt_message"],
-            chat_history[:-1],
+            session_id,
             user_input,
         )
-        chat_history.append(Chat(role="assistant", message=answer))
+        session.add_message(Chat(role="assistant", message=answer))
+        chat_service.repo.save(session)
         st.rerun()
 
     if st.session_state["sentiment_output"]:
