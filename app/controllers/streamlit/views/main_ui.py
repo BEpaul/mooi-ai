@@ -34,8 +34,11 @@ def run_main_ui(chat_service: ChatService):
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        # TODO: predict gauge with service
-        st.session_state["gauge"] = 70
+        st.session_state["gauge"] = chat_service.get_gauge(
+            st.session_state["gauge_reference_prompt_message"],
+            st.session_state["gauge_content_prompt_message"],
+            session_id,
+        )
 
         for sentence in chat_service.stream_chat_response(
             st.session_state["chat_prompt_message"],

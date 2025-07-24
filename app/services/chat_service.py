@@ -3,13 +3,14 @@ from langchain_core.runnables import Runnable
 from langchain.chat_models import init_chat_model
 from typing import Generator
 
-from models import TimeCapsule, TodaySentimentReportOutput
+from models import Gauge, TimeCapsule, TodaySentimentReportOutput
 from prompt.prompt_factory import (
     make_chat_prompt_template,
     make_sentiment_prompt_template,
     make_timecapsule_prompt_template,
+    make_gauge_prompt_template,
 )
-from prompt import SENTIMENT_OUTPUT_PARSER, TIMECAPSULE_PARSER
+from prompt import GAUGE_PARSER, SENTIMENT_OUTPUT_PARSER, TIMECAPSULE_PARSER
 from repositories import ChatSessionRepository
 
 
@@ -17,6 +18,19 @@ class ChatService:
     def __init__(self, repo: ChatSessionRepository):
         self.llm = init_chat_model("gpt-4o-mini", model_provider="openai")
         self.repo = repo
+
+    def get_gauge(
+        self, reference_message: str, analyze_message: str, session_id: str
+    ) -> Gauge:
+        chat_session = self.repo.get(session_id)
+        gauge_prompt = make_gauge_prompt_template(reference_message, analyze_message)
+        chain: Runnable = gauge_prompt | self.llm | GAUGE_PARSER
+        return chain.invoke(
+            {
+                "dialog_message": chat_session.to_dialog_string(),
+                "format_instructions": GAUGE_PARSER.get_format_instructions(),
+            }
+        )
 
     def generate_chat_response(
         self,

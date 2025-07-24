@@ -1,11 +1,16 @@
 import streamlit as st
 
+from models import Gauge
+
 
 def run_gauge_ui():
-    st.subheader("감정 대화 게이지")
-    score = st.session_state["gauge"]
-    st.progress(score)
+    gauge: Gauge = st.session_state["gauge"]
 
+    st.subheader("감정 대화 게이지")
+    score = gauge.gauge_score if gauge is not None else 0
+    st.progress(score)
+    if gauge is not None:
+        st.info(gauge.summary)
     if score >= 60:
         st.success("🟢 충분함 — 감정 분석 가능")
     elif score >= 30:

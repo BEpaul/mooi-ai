@@ -1,6 +1,6 @@
 import streamlit as st
 
-from models import ChatSession
+from models import ChatSession, Gauge
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
     DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
@@ -9,6 +9,8 @@ from prompt.defaults import (
     DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
 )
 from services import ChatService
 
@@ -17,10 +19,12 @@ def init_session(chat_service: ChatService):
 
     defaults = {
         "current_session": "대화 1",
-        "gauge": 0,
+        "gauge": None,
         "sentiment_output": None,
         "timecapsule": None,
         "chat_prompt_message": DEFAULT_CHATBOT_PROMPT_MESSAGE,
+        "gauge_reference_prompt_message": DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
+        "gauge_content_prompt_message": DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE,
         "capsule_role_prompt_message": DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
         "capsule_reference_prompt_message": DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
         "capsule_content_prompt_message": DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,

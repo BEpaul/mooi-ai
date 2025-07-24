@@ -38,3 +38,11 @@ def make_sentiment_prompt_template(
     template_message += FORMATTING_MESSAGE
 
     return PromptTemplate.from_template(template_message)
+
+
+def make_gauge_prompt_template(reference_message: str, analyze_message: str):
+    template_message = reference_message.strip() + "\n{dialog_message}\n"
+    template_message += analyze_message.strip() + "\n\n"
+    template_message += FORMATTING_MESSAGE
+
+    return PromptTemplate.from_template(template_message)

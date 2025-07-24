@@ -57,6 +57,21 @@ DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE = """
 - 오늘 하루 감정 전반에 대해 종합적으로 평가한 짧은 문장
 """.strip()
 
+
+DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE = """
+다음은 사용자와 상담 AI가 나눈 감정 대화이다. 이 대화를 바탕으로 감정 분석을 하기 위해, 대화가 얼마나 충분히 진행되었는지 평가해라.
+""".strip()
+
+DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE = """
+감정 분석을 하기 위한 ‘게이지 점수’를 0~100 사이 정수로 정량화하세요. 아래 기준에 따라 판단합니다:
+
+- 대화 턴 수: 1~10점
+- 감정 표현 문장 수 (예: 화남, 기쁨, 불안 등): 1~30점
+- 다양한 감정의 등장 (예: 분노 + 우울 + 안정): 1~20점
+- 구체적인 사건/상황/사람 언급 여부: 1~20점
+- 시간 흐름에 따른 감정 변화 (예: 처음 대화는 무기력함 → 나중에 분노함): 1~20점
+""".strip()
+
 FORMATTING_MESSAGE = """
 반드시 아래와 같은 JSON 형식으로 출력해: 
 {format_instructions}
