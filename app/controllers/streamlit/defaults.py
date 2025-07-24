@@ -17,6 +17,7 @@ def init_session(chat_service: ChatService):
 
     defaults = {
         "current_session": "대화 1",
+        "gauge": 0,
         "sentiment_output": None,
         "timecapsule": None,
         "chat_prompt_message": DEFAULT_CHATBOT_PROMPT_MESSAGE,

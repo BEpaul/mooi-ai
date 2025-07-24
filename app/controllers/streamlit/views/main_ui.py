@@ -2,6 +2,7 @@ import streamlit as st
 
 from controllers.streamlit.views.components import (
     run_conversation_management_ui,
+    run_gauge_ui,
     run_prompt_ui,
     run_sentiment_analyze_button,
     run_sentiment_analyze_report,
@@ -22,6 +23,8 @@ def run_main_ui(chat_service: ChatService):
     session_id = st.session_state["current_session"]
     session = chat_service.repo.get(session_id)
 
+    run_gauge_ui()
+
     for chat in session.messages:
         with st.chat_message(chat.role):
             st.markdown(chat.message)
@@ -30,6 +33,9 @@ def run_main_ui(chat_service: ChatService):
         session.add_message(Chat(role="user", message=user_input))
         with st.chat_message("user"):
             st.markdown(user_input)
+
+        # TODO: predict gauge with service
+        st.session_state["gauge"] = 70
 
         for sentence in chat_service.stream_chat_response(
             st.session_state["chat_prompt_message"],
