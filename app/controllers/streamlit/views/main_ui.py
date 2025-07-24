@@ -5,6 +5,8 @@ from controllers.streamlit.views.components import (
     run_prompt_ui,
     run_sentiment_analyze_button,
     run_sentiment_analyze_report,
+    run_timecapsule_analyze_button,
+    run_timecapsule_report,
 )
 from models import Chat
 from services import ChatService
@@ -14,6 +16,7 @@ def run_main_ui(chat_service: ChatService):
     with st.sidebar:
         run_prompt_ui()
         run_conversation_management_ui(chat_service)
+        run_timecapsule_analyze_button(chat_service)
         run_sentiment_analyze_button(chat_service)
 
     session_id = st.session_state["current_session"]
@@ -40,6 +43,9 @@ def run_main_ui(chat_service: ChatService):
 
         chat_service.repo.save(session)
         st.rerun()
+
+    if st.session_state["timecapsule"]:
+        run_timecapsule_report(st.session_state["timecapsule"])
 
     if st.session_state["sentiment_output"]:
         run_sentiment_analyze_report(st.session_state["sentiment_output"])

@@ -2,11 +2,11 @@ DEFAULT_CHATBOT_PROMPT_MESSAGE = (
     "너는 친절한 상담사로써 고객의 감정을 잘 이해하고 응답해야 해."
 )
 
-DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE = """
+DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE = """
 너는 전문 심리 상담사야.
 """.strip()
 
-DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE = """
+DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE = """
 다음은 오늘 하루 동안 사람과 상담봇이 나눈 대화 기록이야.
 """.strip()
 
@@ -18,6 +18,15 @@ DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE = """
 - 3~5 문장 정도로 요약된 감정 대화 블록 (예: 오늘 친구를 만났는데 친구가 지각해놓고 미안하단 말을 하지 않아서 집에 갈 때 기분이 좋지 않았어. 그렇지만 집에서 엄마가 해주신 맛있는 저녁을 먹고 기분이 좋아지더라. 나를 가장 생각해주는 건 가족밖에 없다는 생각이 들었어.)
 - 최소 2개, 최대 4개까지의 감정 키워드, 순서는 대화에서 차지하는 비율이 가장 높은 단어부터 (예: ["서운함", "고마움", "안정감"])
 - AI가 감정 흐름과 회복 과정을 해석해주는 2~4 문장 분량의 피드백 (예: ["오늘은 조금 힘든 일이 있었지만, 가족과의 따뜻한 시간 덕분에 긍정적인 감정으로 마무리했어요.", "귀가 후 가족애와 안정감을 느끼면서, 부정적 감정을 회복할 수 있었어요.", "감정이 복잡하게 얽힌 하루였네요. 하지만 작은 부분에서 감사함을 느끼는 모습이 멋져요."])
+""".strip()
+
+DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE = """
+너는 전문 심리 상담사야.
+""".strip()
+
+
+DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE = """
+다음은 오늘 하루 동안 사람과 상담봇이 나눈 복수의 대화 기록이야.
 """.strip()
 
 

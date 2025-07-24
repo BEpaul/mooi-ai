@@ -2,3 +2,5 @@ from .prompt_ui import run_prompt_ui
 from .sentiment_analyze_button import run_sentiment_analyze_button
 from .sentiment_report_ui import run_sentiment_analyze_report
 from .session_ui import run_conversation_management_ui
+from .timecapsule_button import run_timecapsule_analyze_button
+from .timecapsule_report_ui import run_timecapsule_report
