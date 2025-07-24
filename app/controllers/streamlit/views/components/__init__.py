@@ -1,3 +1,4 @@
+from .gauge_ui import run_gauge_ui
 from .prompt_ui import run_prompt_ui
 from .sentiment_analyze_button import run_sentiment_analyze_button
 from .sentiment_report_ui import run_sentiment_analyze_report
