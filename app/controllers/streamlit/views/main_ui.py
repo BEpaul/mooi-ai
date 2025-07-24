@@ -25,12 +25,19 @@ def run_main_ui(chat_service: ChatService):
 
     if user_input := st.chat_input("당신의 마음을 표현하세요"):
         session.add_message(Chat(role="user", message=user_input))
-        answer = chat_service.generate_chat_response(
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        for sentence in chat_service.stream_chat_response(
             st.session_state["chat_prompt_message"],
             session_id,
             user_input,
-        )
-        session.add_message(Chat(role="assistant", message=answer))
+        ):
+            with st.chat_message("assistant"):
+                st.markdown(sentence)
+
+            session.add_message(Chat(role="assistant", message=sentence))
+
         chat_service.repo.save(session)
         st.rerun()
 
