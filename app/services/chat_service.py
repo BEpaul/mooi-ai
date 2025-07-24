@@ -1,4 +1,7 @@
+import re
+from langchain_core.runnables import Runnable
 from langchain.chat_models import init_chat_model
+from typing import Generator
 
 from models import TodaySentimentReportOutput
 from prompt.prompt_factory import (
@@ -11,7 +14,6 @@ from repositories import ChatSessionRepository
 
 class ChatService:
     def __init__(self, repo: ChatSessionRepository):
-        # TODO: consider stream mode
         self.llm = init_chat_model("gpt-4o-mini", model_provider="openai")
         self.repo = repo
 
@@ -23,8 +25,30 @@ class ChatService:
     ) -> str:
         chat_session = self.repo.get(session_id)
         chat_prompt = make_chat_prompt_template(chat_prompt_message, chat_session)
-        chain = chat_prompt | self.llm
+        chain: Runnable = chat_prompt | self.llm
         return chain.invoke({"input": user_input}).content
+
+    def stream_chat_response(
+        self,
+        chat_prompt_message: str,
+        session_id: str,
+        user_input: str,
+    ) -> Generator[str, None, None]:
+        chat_session = self.repo.get(session_id)
+        chat_prompt = make_chat_prompt_template(chat_prompt_message, chat_session)
+        chain: Runnable = chat_prompt | self.llm
+
+        buffer = ""
+        for chunk in chain.stream({"input": user_input}):
+            buffer += chunk.content
+
+            while match := re.search(r"(.+?[.!?])(\s|$)", buffer):
+                sentence = match.group(1).strip()
+                yield sentence
+                buffer = buffer[match.end() :]
+
+        if buffer.strip():
+            yield buffer.strip()
 
     def analyze_sentiment(
         self,
