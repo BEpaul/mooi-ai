@@ -3,12 +3,13 @@ from langchain_core.runnables import Runnable
 from langchain.chat_models import init_chat_model
 from typing import Generator
 
-from models import TodaySentimentReportOutput
+from models import TimeCapsule, TodaySentimentReportOutput
 from prompt.prompt_factory import (
     make_chat_prompt_template,
     make_sentiment_prompt_template,
+    make_timecapsule_prompt_template,
 )
-from prompt import SENTIMENT_OUTPUT_PARSER
+from prompt import SENTIMENT_OUTPUT_PARSER, TIMECAPSULE_PARSER
 from repositories import ChatSessionRepository
 
 
@@ -49,6 +50,22 @@ class ChatService:
 
         if buffer.strip():
             yield buffer.strip()
+
+    def make_timecapsule(
+        self,
+        role_message: str,
+        reference_message: str,
+        analyze_message: str,
+        session_id: str,
+    ) -> TimeCapsule:
+        chat_session = self.repo.get(session_id)
+        timecapsule_prompt = make_timecapsule_prompt_template(
+            chat_session, role_message, reference_message, analyze_message
+        )
+        timecapsule_chain = timecapsule_prompt | self.llm | TIMECAPSULE_PARSER
+        return timecapsule_chain.invoke(
+            {"format_instructions": TIMECAPSULE_PARSER.get_format_instructions()}
+        )
 
     def analyze_sentiment(
         self,
