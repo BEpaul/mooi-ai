@@ -10,7 +10,9 @@ def main():
     elif mode == "streamlit":
         run_streamlit_app()
     elif mode == "fastapi":
-        run_fastapi_app()
+        import uvicorn
+
+        uvicorn.run("main:run_fastapi_app", host="0.0.0.0", port=8000, factory=True)
     else:
         raise ValueError(f"Invalid APP_MODE: '{mode}'. Use 'streamlit' or 'fastapi'.")
 
