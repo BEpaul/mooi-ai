@@ -2,7 +2,8 @@ import asyncio
 import json
 from typing import AsyncIterator, Optional
 
-from models import ChatSession, ChatRequest, ChatResponse
+from models import ChatSession, ChatRequest, ChatResponse, TimeCapsuleRequest, SentimentAnalysisRequest
+from models import TimeCapsule, TodaySentimentReportOutput
 from repositories import InMemoryChatSessionRepository
 from services import ChatService
 
@@ -56,6 +57,7 @@ def run_fastapi_app():
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    # 대화 API
     @app.websocket("/ws/chat")
     async def ws_chat(websocket: WebSocket):
         await websocket.accept()
@@ -109,5 +111,32 @@ def run_fastapi_app():
                     await websocket.send_json({"type": "error", "message": str(e)})
         except WebSocketDisconnect:
             return
+
+    # 타임캡슐 생성 API
+    @app.post("/timecapsule/create", response_model=TimeCapsule)
+    def create_timecapsule(req: TimeCapsuleRequest):
+        try:
+            timecapsule = chat_service.make_timecapsule(
+                role_message=req.role_message,
+                reference_message=req.reference_message,
+                analyze_message=req.analyze_message,
+                session_id=req.session_id,
+            )
+            return timecapsule
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    # 감정분석 API
+    @app.post("/sentiment/analyze", response_model=TodaySentimentReportOutput)
+    def analyze_sentiment(req: SentimentAnalysisRequest):
+        try:
+            sentiment_report = chat_service.analyze_sentiment(
+                role_message=req.role_message,
+                reference_message=req.reference_message,
+                analyze_message=req.analyze_message,
+            )
+            return sentiment_report
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     return app
