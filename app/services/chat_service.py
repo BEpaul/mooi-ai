@@ -31,21 +31,24 @@ class ChatService:
     ) -> Gauge:
         chat_session = self._get_or_create_session(session_id)
         
-        # 실제 대화 턴 수 계산 (user + assistant 메시지 총 개수)
-        actual_turn_count = len(chat_session.messages)
-        
+        # AI로부터 새로운 게이지 점수 계산
         gauge_prompt = make_gauge_prompt_template(reference_message, analyze_message)
         chain: Runnable = gauge_prompt | self.llm | GAUGE_PARSER
-        gauge_result = chain.invoke(
+        new_gauge_result = chain.invoke(
             {
                 "dialog_message": chat_session.to_dialog_string(),
                 "format_instructions": GAUGE_PARSER.get_format_instructions(),
             }
         )
         
-        # turn_count_score를 실제 대화 턴 수로 덮어쓰기
-        gauge_result.turn_count_score = actual_turn_count
-        return gauge_result
+        # 새로운 게이지 점수를 세션에 누적 저장
+        chat_session.update_gauge_scores(new_gauge_result)
+        
+        # 세션 저장
+        self.repo.save(chat_session)
+        
+        # 누적된 게이지 점수 반환
+        return chat_session.get_cumulative_gauge()
 
     def generate_chat_response(
         self,
