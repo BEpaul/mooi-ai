@@ -2,9 +2,8 @@ import asyncio
 import json
 from typing import AsyncIterator, Optional
 
-from models import ChatSession, ChatRequest, ChatResponse
-from models import ChatSession, ChatRequest, ChatResponse, TimeCapsuleRequest, SentimentAnalysisRequest
-from models import TimeCapsule, TodaySentimentReportOutput
+from models import ChatSession, ChatRequest, ChatResponse, TimeCapsuleRequest, SentimentAnalysisRequest, GaugeRequest
+from models import TimeCapsule, TodaySentimentReportOutput, Gauge
 from repositories import InMemoryChatSessionRepository
 from services import ChatService
 
@@ -98,16 +97,51 @@ def run_fastapi_app():
 
                 # start streaming chat response
                 try:
+                    # 사용자 메시지를 세션에 추가
+                    from models import Chat
+                    session = chat_service._get_or_create_session(session_id)
+                    session.add_message(Chat(role="user", message=user_input))
+                    
+                    # AI 응답 스트리밍
+                    full_response = ""
                     async for sentence in run_generator_in_thread(
                         chat_service.stream_chat_response,
                         chat_prompt_message,
                         session_id,
                         user_input,
                     ):
+                        full_response += sentence
                         await websocket.send_json(
                             {"type": "chat.delta", "text": sentence}
                         )
+                    
+                    # AI 응답을 세션에 추가
+                    session.add_message(Chat(role="assistant", message=full_response))
+                    chat_service.repo.save(session)
+                    
                     await websocket.send_json({"type": "chat.end"})
+                    
+                    # 대화 완료 후 게이지 분석 수행
+                    try:
+                        from prompt.defaults import DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE, DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE
+                        gauge_reference = payload.get("gauge_reference_message", DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE)
+                        gauge_analyze = payload.get("gauge_analyze_message", DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE)
+                        
+                        gauge_result = chat_service.get_gauge(
+                            reference_message=gauge_reference,
+                            analyze_message=gauge_analyze,
+                            session_id=session_id,
+                        )
+                        await websocket.send_json({
+                            "type": "gauge.result",
+                            "gauge": gauge_result.dict()
+                        })
+                    except Exception as gauge_error:
+                        await websocket.send_json({
+                            "type": "gauge.error",
+                            "message": f"게이지 분석 실패: {str(gauge_error)}"
+                        })
+                        
                 except Exception as e:
                     await websocket.send_json({"type": "error", "message": str(e)})
         except WebSocketDisconnect:

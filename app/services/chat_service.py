@@ -30,14 +30,22 @@ class ChatService:
         self, reference_message: str, analyze_message: str, session_id: str
     ) -> Gauge:
         chat_session = self._get_or_create_session(session_id)
+        
+        # 실제 대화 턴 수 계산 (user + assistant 메시지 총 개수)
+        actual_turn_count = len(chat_session.messages)
+        
         gauge_prompt = make_gauge_prompt_template(reference_message, analyze_message)
         chain: Runnable = gauge_prompt | self.llm | GAUGE_PARSER
-        return chain.invoke(
+        gauge_result = chain.invoke(
             {
                 "dialog_message": chat_session.to_dialog_string(),
                 "format_instructions": GAUGE_PARSER.get_format_instructions(),
             }
         )
+        
+        # turn_count_score를 실제 대화 턴 수로 덮어쓰기
+        gauge_result.turn_count_score = actual_turn_count
+        return gauge_result
 
     def generate_chat_response(
         self,
