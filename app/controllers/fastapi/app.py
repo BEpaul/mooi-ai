@@ -121,12 +121,13 @@ def run_fastapi_app():
                     
                     await websocket.send_json({"type": "chat.end"})
                     
-                    # 대화 완료 후 게이지 분석 수행
+                    # 대화 완료 후 게이지 분석 수행 (누적 점수)
                     try:
                         from prompt.defaults import DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE, DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE
                         gauge_reference = payload.get("gauge_reference_message", DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE)
                         gauge_analyze = payload.get("gauge_analyze_message", DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE)
                         
+                        # 게이지 점수 계산 및 누적 저장
                         gauge_result = chat_service.get_gauge(
                             reference_message=gauge_reference,
                             analyze_message=gauge_analyze,
