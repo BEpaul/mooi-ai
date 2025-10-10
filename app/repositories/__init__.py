@@ -1,3 +1,8 @@
 from .base import ChatSessionRepository
 from .in_memory import InMemoryChatSessionRepository
-from .streamlit import StreamlitSessionRepository
+
+# Streamlit은 설치된 경우에만 import
+try:
+    from .streamlit import StreamlitSessionRepository
+except ImportError:
+    StreamlitSessionRepository = None
