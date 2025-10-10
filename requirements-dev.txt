@@ -1,0 +1,7 @@
+# 개발 환경용 의존성 (Streamlit 포함)
+-r requirements.txt
+
+streamlit==1.46.1
+fastapi==0.116.1
+uvicorn==0.35.0
+

@@ -1,0 +1,7 @@
+# 운영 환경용 의존성 (FastAPI만)
+-r requirements.txt
+
+# FastAPI
+fastapi==0.116.1
+uvicorn==0.35.0
+
