@@ -62,7 +62,7 @@ class ChatSession(BaseModel):
         
         return Gauge(
             gauge_score=self.gauge_score,
-            turn_count_score=len(self.messages),
+            turn_count_score=len(self.get_user_messages()),
             emotion_expression_score=self.emotion_expression_score,
             emotion_diversity_score=self.emotion_diversity_score,
             event_reference_score=self.event_reference_score,
