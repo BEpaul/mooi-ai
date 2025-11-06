@@ -11,6 +11,18 @@ LangChain을 기반으로 다양한 프롬프트를 유연하게 실험하는 �
 - Python >= 3.10
 - OpenAI API Key
 
+## Installation
+
+### 개발 환경 (Streamlit + FastAPI)
+```bash
+pip install -r requirements-dev.txt
+```
+
+### 운영 환경 (FastAPI만)
+```bash
+pip install -r requirements-prod.txt
+```
+
 ## How to Run
 
 ### Streamlit App
@@ -24,7 +36,7 @@ LangChain을 기반으로 다양한 프롬프트를 유연하게 실험하는 �
 
 2. `streamlit run app/main.py`를 실행합니다.
 
-### FastAPI
+### FastAPI (개발)
 
 1. `.env` 파일을 다음과 같이 작성합니다.
 
@@ -34,6 +46,17 @@ LangChain을 기반으로 다양한 프롬프트를 유연하게 실험하는 �
     ```
 
 2. `python app/main.py`를 실행합니다.
+
+### FastAPI (프로덕션)
+
+1. `.env` 파일을 다음과 같이 작성합니다.
+
+    ```
+    OPENAI_API_KEY=your-api-key
+    PORT=8000
+    ```
+
+2. `python app/main_prod.py`를 실행합니다.
 
 웹소켓 엔드포인트는 다음과 같이 요청할 수 있습니다.
 
