@@ -4,8 +4,10 @@ from typing import AsyncIterator, Optional
 
 from models import ChatSession, ChatRequest, ChatResponse, TimeCapsuleRequest, SentimentAnalysisRequest, GaugeRequest
 from models import TimeCapsule, TodaySentimentReportOutput, Gauge
+from models import Chat
 from repositories import InMemoryChatSessionRepository
 from services import ChatService
+from prompt.defaults import DEFAULT_CHATBOT_PROMPT_MESSAGE, DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE, DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE
 
 
 async def run_generator_in_thread(gen_func, *args, **kwargs) -> AsyncIterator[str]:
@@ -48,8 +50,10 @@ def run_fastapi_app():
     @app.post("/chat/respond", response_model=ChatResponse)
     def respond(req: ChatRequest):
         try:
+            # 기본 반말 프롬프트를 항상 포함하도록 보정
+            chat_prompt_message = (DEFAULT_CHATBOT_PROMPT_MESSAGE + "\n" + (req.chat_prompt_message or "")).strip()
             response = chat_service.generate_chat_response(
-                chat_prompt_message=req.chat_prompt_message,
+                chat_prompt_message=chat_prompt_message,
                 session_id=req.session_id,
                 user_input=req.user_input,
             )
@@ -89,7 +93,7 @@ def run_fastapi_app():
                 chat_prompt_message = payload.get("chat_prompt_message")
                 user_input = payload.get("user_input")
 
-                if not session_id or not chat_prompt_message or not user_input:
+                if not session_id or not user_input:
                     await websocket.send_json(
                         {"type": "error", "message": "missing fields"}
                     )
@@ -98,7 +102,6 @@ def run_fastapi_app():
                 # start streaming chat response
                 try:
                     # 사용자 메시지를 세션에 추가
-                    from models import Chat
                     session = chat_service._get_or_create_session(session_id)
                     session.add_message(Chat(role="user", message=user_input))
                     
@@ -106,7 +109,7 @@ def run_fastapi_app():
                     full_response = ""
                     async for sentence in run_generator_in_thread(
                         chat_service.stream_chat_response,
-                        chat_prompt_message,
+                        (DEFAULT_CHATBOT_PROMPT_MESSAGE + "\n" + (chat_prompt_message or "")).strip(),
                         session_id,
                         user_input,
                     ):
@@ -123,7 +126,6 @@ def run_fastapi_app():
                     
                     # 대화 완료 후 게이지 분석 수행 (누적 점수)
                     try:
-                        from prompt.defaults import DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE, DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE
                         gauge_reference = payload.get("gauge_reference_message", DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE)
                         gauge_analyze = payload.get("gauge_analyze_message", DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE)
                         
