@@ -7,7 +7,14 @@ from models import TimeCapsule, TodaySentimentReportOutput, Gauge
 from models import Chat
 from repositories import InMemoryChatSessionRepository
 from services import ChatService
-from prompt.defaults import DEFAULT_CHATBOT_PROMPT_MESSAGE, DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE, DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE
+from prompt.defaults import (
+    DEFAULT_CHATBOT_PROMPT_MESSAGE,
+    DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
+    DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,
+)
 
 
 async def run_generator_in_thread(gen_func, *args, **kwargs) -> AsyncIterator[str]:
@@ -154,10 +161,11 @@ def run_fastapi_app():
     @app.post("/timecapsule/create", response_model=TimeCapsule)
     def create_timecapsule(req: TimeCapsuleRequest):
         try:
+            # 요청값과 관계없이 defaults.py의 기본값 사용, session_id만 요청에서 받음
             timecapsule = chat_service.make_timecapsule(
-                role_message=req.role_message,
-                reference_message=req.reference_message,
-                analyze_message=req.analyze_message,
+                role_message=DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
+                reference_message=DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
+                analyze_message=DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,
                 session_id=req.session_id,
             )
             return timecapsule
