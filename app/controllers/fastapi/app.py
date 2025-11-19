@@ -56,6 +56,12 @@ def run_fastapi_app():
     # TODO: refactor as route
     @app.post("/chat/respond", response_model=ChatResponse)
     def respond(req: ChatRequest):
+        """
+        사용자 입력에 대한 AI 채팅 응답을 생성합니다.
+        
+        기본 반말 프롬프트가 항상 포함되며, 요청의 chat_prompt_message가 있으면 추가로 적용됩니다.
+        응답은 지정된 세션의 대화 기록을 기반으로 생성됩니다.
+        """
         try:
             # 기본 반말 프롬프트를 항상 포함하도록 보정
             chat_prompt_message = (DEFAULT_CHATBOT_PROMPT_MESSAGE + "\n" + (req.chat_prompt_message or "")).strip()
@@ -71,6 +77,26 @@ def run_fastapi_app():
     # 대화 API
     @app.websocket("/ws/chat")
     async def ws_chat(websocket: WebSocket):
+        """
+        WebSocket을 통한 실시간 채팅 스트리밍 API입니다.
+        
+        메시지 형식:
+        - type: "chat.start" (필수)
+        - payload: {
+            - session_id: 세션 ID (필수)
+            - user_input: 사용자 입력 메시지 (필수)
+            - chat_prompt_message: 추가 프롬프트 메시지 (선택)
+            - gauge_reference_message: 게이지 분석 참조 메시지 (선택)
+            - gauge_analyze_message: 게이지 분석 지시 메시지 (선택)
+          }
+        
+        응답 형식:
+        - chat.delta: 스트리밍 중인 문장 단위 응답
+        - chat.end: 스트리밍 완료
+        - gauge.result: 게이지 분석 결과 (대화 완료 후)
+        - gauge.error: 게이지 분석 실패
+        - error: 에러 발생
+        """
         await websocket.accept()
         try:
             while True:
@@ -160,6 +186,15 @@ def run_fastapi_app():
     # 타임캡슐 생성 API
     @app.post("/timecapsule/create", response_model=TimeCapsule)
     def create_timecapsule(req: TimeCapsuleRequest):
+        """
+        지정된 세션의 대화 내용을 기반으로 감정 타임캡슐을 생성합니다.
+        
+        프롬프트 메시지(role_message, reference_message, analyze_message)는
+        요청값과 관계없이 기본값을 사용하며,
+        session_id만 요청에서 받아 해당 세션의 대화를 분석합니다.
+        
+        타임캡슐에는 대화 요약, 감정 키워드, 감정 비율, AI 피드백이 포함됩니다.
+        """
         try:
             # 요청값과 관계없이 defaults.py의 기본값 사용, session_id만 요청에서 받음
             timecapsule = chat_service.make_timecapsule(
