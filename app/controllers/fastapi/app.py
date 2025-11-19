@@ -175,11 +175,18 @@ def run_fastapi_app():
     # 감정분석 API
     @app.post("/sentiment/analyze", response_model=TodaySentimentReportOutput)
     def analyze_sentiment(req: SentimentAnalysisRequest):
+        """
+        여러 채팅방의 대화 내용을 기반으로 감정 분석을 수행합니다.
+        
+        dialog_messages가 제공되면 해당 내용을 사용하고,
+        제공되지 않으면 저장소의 모든 세션 대화를 사용합니다.
+        """
         try:
             sentiment_report = chat_service.analyze_sentiment(
                 role_message=req.role_message,
                 reference_message=req.reference_message,
                 analyze_message=req.analyze_message,
+                dialog_messages=req.dialog_messages,
             )
             return sentiment_report
         except Exception as e:

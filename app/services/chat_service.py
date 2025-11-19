@@ -1,7 +1,7 @@
 import re
 from langchain_core.runnables import Runnable
 from langchain.chat_models import init_chat_model
-from typing import Generator
+from typing import Generator, Optional
 
 from models import Gauge, TimeCapsule, TodaySentimentReportOutput, ChatSession
 from prompt.prompt_factory import (
@@ -104,8 +104,23 @@ class ChatService:
         role_message: str,
         reference_message: str,
         analyze_message: str,
+        dialog_messages: Optional[str] = None,
     ) -> TodaySentimentReportOutput:
-        dialog_message = self._make_dialog_message()
+        """
+        감정 분석을 수행합니다.
+        
+        Args:
+            role_message: AI 역할 정의 메시지
+            reference_message: 대화 데이터 설명 메시지
+            analyze_message: 분석 방법 지시사항
+            dialog_messages: 분석할 대화 내용. None이면 저장소의 모든 세션 대화를 사용합니다.
+        
+        Returns:
+            TodaySentimentReportOutput: 감정 분석 결과
+        """
+        # dialog_messages가 제공되지 않으면 저장소의 모든 세션 대화를 사용
+        dialog_message = dialog_messages if dialog_messages is not None else self._make_dialog_message()
+        
         sentiment_prompt = make_sentiment_prompt_template(
             role_message, reference_message, analyze_message
         )
@@ -118,9 +133,19 @@ class ChatService:
         )
 
     def _make_dialog_message(self) -> str:
+        """저장소의 모든 세션 대화를 하나의 문자열로 변환합니다."""
         lines = []
         for sess in self.repo.list():
             lines.append(sess.session_id.strip() + ":")
             lines.append(sess.to_dialog_string())
             lines.append("")
         return "\n".join(lines)
+    
+    def get_all_dialog_messages(self) -> str:
+        """
+        저장소의 모든 세션 대화를 하나의 문자열로 반환합니다.
+        
+        Returns:
+            str: 모든 세션의 대화 내용을 포함한 문자열
+        """
+        return self._make_dialog_message()
