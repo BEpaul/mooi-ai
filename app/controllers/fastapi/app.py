@@ -14,6 +14,9 @@ from prompt.defaults import (
     DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
     DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
     DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
 )
 
 
@@ -175,11 +178,34 @@ def run_fastapi_app():
     # 감정분석 API
     @app.post("/sentiment/analyze", response_model=TodaySentimentReportOutput)
     def analyze_sentiment(req: SentimentAnalysisRequest):
+        """
+        여러 채팅방의 대화 내용을 기반으로 감정 분석을 수행합니다.
+        
+        role_message, reference_message, analyze_message가 빈 문자열("")이면
+        기본값을 사용하며, dialog_messages가 제공되지 않으면 저장소의 모든 세션 대화를 사용합니다.
+        """
         try:
+            # 빈 문자열이면 기본값 사용
+            role_message = (
+                req.role_message
+                if req.role_message.strip()
+                else DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE
+            )
+            reference_message = (
+                req.reference_message
+                if req.reference_message.strip()
+                else DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE
+            )
+            analyze_message = (
+                req.analyze_message
+                if req.analyze_message.strip()
+                else DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE
+            )
+            
             sentiment_report = chat_service.analyze_sentiment(
-                role_message=req.role_message,
-                reference_message=req.reference_message,
-                analyze_message=req.analyze_message,
+                role_message=role_message,
+                reference_message=reference_message,
+                analyze_message=analyze_message,
             )
             return sentiment_report
         except Exception as e:
