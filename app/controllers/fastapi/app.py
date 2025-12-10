@@ -2,21 +2,35 @@ import asyncio
 import json
 from typing import AsyncIterator, Optional
 
-from models import ChatSession, ChatRequest, ChatResponse, TimeCapsuleRequest, SentimentAnalysisRequest, GaugeRequest
-from models import TimeCapsule, TodaySentimentReportOutput, Gauge
-from models import Chat
+from models import (
+    Chat,
+    ChatRequest,
+    ChatResponse,
+    ChatSession,
+    DailyReport,
+    DailyReportRequest,
+    Gauge,
+    GaugeRequest,
+    SentimentAnalysisRequest,
+    TimeCapsule,
+    TimeCapsuleRequest,
+    TodaySentimentReportOutput,
+)
 from repositories import InMemoryChatSessionRepository
 from services import ChatService
 from prompt.defaults import (
     DEFAULT_CHATBOT_PROMPT_MESSAGE,
-    DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_DAILY_REPORT_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_DAILY_REPORT_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_DAILY_REPORT_ROLE_PROMPT_MESSAGE,
     DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE,
-    DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
-    DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
-    DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,
-    DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
-    DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
+    DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
 )
 
 
@@ -208,6 +222,58 @@ def run_fastapi_app():
                 analyze_message=analyze_message,
             )
             return sentiment_report
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    # 일일 리포트 생성 API
+    @app.post("/daily-report/generate", response_model=DailyReport)
+    def generate_daily_report(req: DailyReportRequest):
+        """
+        여러 타임캡슐을 종합하여 일일 리포트를 생성합니다.
+        
+        Args:
+            req: DailyReportRequest
+                - role_message: 역할 프롬프트 (빈 문자열이면 기본값 사용)
+                - reference_message: 기록 참조 프롬프트 (타임캡슐 정보가 포함되어야 함)
+                    타임캡슐 포맷은 DEFAULT_DAILY_REPORT_REFERENCE_PROMPT_MESSAGE의 가이드를 참고하세요.
+                - analyze_message: 분석 항목 프롬프트 (빈 문자열이면 기본값 사용)
+        
+        Returns:
+            DailyReport: 생성된 일일 리포트
+        
+        Example:
+            ```json
+            {
+                "role_message": "",
+                "reference_message": "다음은 오늘 하루 동안 생성된 복수의 타임캡슐이야.\n\n---\n타임캡슐 1:\n제목: 회의 스트레스\n한 줄 요약: 아침 회의로 인한 스트레스\n상세 요약: ...\n감정 키워드: 😡짜증 70%, 😰불안 30%\n피드백: ...\n---",
+                "analyze_message": ""
+            }
+            ```
+        """
+        try:
+            # 빈 문자열이면 기본값 사용
+            role_message = (
+                req.role_message
+                if req.role_message.strip()
+                else DEFAULT_DAILY_REPORT_ROLE_PROMPT_MESSAGE
+            )
+            reference_message = (
+                req.reference_message
+                if req.reference_message.strip()
+                else DEFAULT_DAILY_REPORT_REFERENCE_PROMPT_MESSAGE
+            )
+            analyze_message = (
+                req.analyze_message
+                if req.analyze_message.strip()
+                else DEFAULT_DAILY_REPORT_ANALYZE_PROMPT_MESSAGE
+            )
+            
+            daily_report = chat_service.generate_daily_report(
+                role_message=role_message,
+                reference_message=reference_message,
+                analyze_message=analyze_message,
+            )
+            return daily_report
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
