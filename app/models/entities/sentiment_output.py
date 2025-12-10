@@ -19,8 +19,9 @@ class TodaySentimentReportOutput(BaseModel):
 
 
 class DailyReport(BaseModel):
-    title: str = Field(description="일일 리포트 제목")
-    summary: str = Field(description="하루 종합 요약 (5~10문장)")
-    highlights: list[str] = Field(description="하루의 주요 하이라이트 (3~5개)")
-    overall_emotion: str = Field(description="하루의 전체적인 감정 요약 (1~2문장)")
-    reflection: str = Field(description="하루에 대한 성찰 및 인사이트 (3~5문장)")
+    summaries: list[str] = Field(description="오늘 있었던 일 요약 (1~10문장)")
+    keywords: list[str] = Field(description="오늘의 주요 키워드 (1~8개)")
+    sentiment_changes: list[str] = Field(description="오늘의 감정 변화")
+    stress_level: int = Field(description="스트레스 지수 (0~100)")
+    happiness_level: int = Field(description="행복 지수 (0~100)")
+    sentiment_review: str = Field(description="감정 한 줄 요약")
