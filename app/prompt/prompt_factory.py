@@ -46,3 +46,23 @@ def make_gauge_prompt_template(reference_message: str, analyze_message: str):
     template_message += FORMATTING_MESSAGE
 
     return PromptTemplate.from_template(template_message)
+
+
+def make_daily_report_prompt_template(
+    role_message: str,
+    reference_message: str,
+    analyze_message: str,
+):
+    """
+    일일 리포트 프롬프트 템플릿 생성
+    
+    Args:
+        role_message: 역할 프롬프트
+        reference_message: 기록 참조 프롬프트 (타임캡슐 정보가 포함된 프롬프트)
+        analyze_message: 분석 항목 프롬프트
+    """
+    template_message = f"{role_message.strip()} {reference_message.strip()}\n\n"
+    template_message += f"{analyze_message.strip()}\n\n"
+    template_message += FORMATTING_MESSAGE
+
+    return PromptTemplate.from_template(template_message)

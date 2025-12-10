@@ -1,2 +1,16 @@
-from .dtos import ChatRequest, ChatResponse, TimeCapsuleRequest, SentimentAnalysisRequest, GaugeRequest
-from .entities import Chat, ChatSession, Gauge, TimeCapsule, TodaySentimentReportOutput
+from .dtos import (
+    ChatRequest,
+    ChatResponse,
+    DailyReportRequest,
+    GaugeRequest,
+    SentimentAnalysisRequest,
+    TimeCapsuleRequest,
+)
+from .entities import (
+    Chat,
+    ChatSession,
+    DailyReport,
+    Gauge,
+    TimeCapsule,
+    TodaySentimentReportOutput,
+)

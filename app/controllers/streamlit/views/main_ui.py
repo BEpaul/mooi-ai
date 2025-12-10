@@ -2,6 +2,8 @@ import streamlit as st
 
 from controllers.streamlit.views.components import (
     run_conversation_management_ui,
+    run_daily_report,
+    run_daily_report_button,
     run_gauge_ui,
     run_prompt_ui,
     run_sentiment_analyze_button,
@@ -19,6 +21,7 @@ def run_main_ui(chat_service: ChatService):
         run_conversation_management_ui(chat_service)
         run_timecapsule_analyze_button(chat_service)
         run_sentiment_analyze_button(chat_service)
+        run_daily_report_button(chat_service)
 
     session_id = st.session_state["current_session"]
     session = chat_service.repo.get(session_id)
@@ -58,3 +61,6 @@ def run_main_ui(chat_service: ChatService):
 
     if st.session_state["sentiment_output"]:
         run_sentiment_analyze_report(st.session_state["sentiment_output"])
+
+    if st.session_state.get("daily_report"):
+        run_daily_report(st.session_state["daily_report"])
