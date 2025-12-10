@@ -3,14 +3,26 @@ from langchain_core.runnables import Runnable
 from langchain.chat_models import init_chat_model
 from typing import Generator
 
-from models import Gauge, TimeCapsule, TodaySentimentReportOutput, ChatSession
+from models import (
+    Gauge,
+    TimeCapsule,
+    TodaySentimentReportOutput,
+    ChatSession,
+    DailyReport,
+)
 from prompt.prompt_factory import (
     make_chat_prompt_template,
     make_sentiment_prompt_template,
     make_timecapsule_prompt_template,
     make_gauge_prompt_template,
+    make_daily_report_prompt_template,
 )
-from prompt import GAUGE_PARSER, SENTIMENT_OUTPUT_PARSER, TIMECAPSULE_PARSER
+from prompt import (
+    GAUGE_PARSER,
+    SENTIMENT_OUTPUT_PARSER,
+    TIMECAPSULE_PARSER,
+    DAILY_REPORT_PARSER,
+)
 from repositories import ChatSessionRepository
 
 
@@ -124,3 +136,29 @@ class ChatService:
             lines.append(sess.to_dialog_string())
             lines.append("")
         return "\n".join(lines)
+
+    def generate_daily_report(
+        self,
+        role_message: str,
+        reference_message: str,
+        analyze_message: str,
+    ) -> DailyReport:
+        """
+        프롬프트에 입력된 타임캡슐 정보를 기반으로 일일 리포트를 생성합니다.
+        
+        Args:
+            role_message: 역할 프롬프트
+            reference_message: 기록 참조 프롬프트 (타임캡슐 정보가 포함된 프롬프트)
+            analyze_message: 분석 항목 프롬프트
+        
+        Returns:
+            DailyReport: 생성된 일일 리포트
+        """
+        daily_report_prompt = make_daily_report_prompt_template(
+            role_message, reference_message, analyze_message
+        )
+        daily_report_chain = daily_report_prompt | self.llm | DAILY_REPORT_PARSER
+        
+        return daily_report_chain.invoke(
+            {"format_instructions": DAILY_REPORT_PARSER.get_format_instructions()}
+        )

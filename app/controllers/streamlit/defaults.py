@@ -9,6 +9,9 @@ from prompt.defaults import (
     DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
     DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
+    DEFAULT_DAILY_REPORT_ROLE_PROMPT_MESSAGE,
+    DEFAULT_DAILY_REPORT_REFERENCE_PROMPT_MESSAGE,
+    DEFAULT_DAILY_REPORT_ANALYZE_PROMPT_MESSAGE,
     DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE,
     DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
 )
@@ -22,6 +25,7 @@ def init_session(chat_service: ChatService):
         "gauge": None,
         "sentiment_output": None,
         "timecapsule": None,
+        "daily_report": None,
         "chat_prompt_message": DEFAULT_CHATBOT_PROMPT_MESSAGE,
         "gauge_reference_prompt_message": DEFAULT_GAUGE_REFERENCE_PROMPT_MESSAGE,
         "gauge_content_prompt_message": DEFAULT_GAUGE_ANALYZE_PROMPT_MESSAGE,
@@ -31,6 +35,9 @@ def init_session(chat_service: ChatService):
         "analyze_role_prompt_message": DEFAULT_SENTIMENT_ROLE_PROMPT_MESSAGE,
         "analyze_reference_prompt_message": DEFAULT_SENTIMENT_REFERENCE_PROMPT_MESSAGE,
         "analyze_content_prompt_message": DEFAULT_SENTIMENT_ANALYZE_PROMPT_MESSAGE,
+        "daily_report_role_prompt_message": DEFAULT_DAILY_REPORT_ROLE_PROMPT_MESSAGE,
+        "daily_report_reference_prompt_message": DEFAULT_DAILY_REPORT_REFERENCE_PROMPT_MESSAGE,
+        "daily_report_content_prompt_message": DEFAULT_DAILY_REPORT_ANALYZE_PROMPT_MESSAGE,
     }
     for key, value in defaults.items():
         st.session_state.setdefault(key, value)

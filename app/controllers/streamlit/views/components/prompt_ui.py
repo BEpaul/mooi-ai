@@ -19,3 +19,8 @@ def run_prompt_ui():
         st.text_area("역할 프롬프트", key="analyze_role_prompt_message")
         st.text_area("기록 참조 프롬프트", key="analyze_reference_prompt_message")
         st.text_area("분석 항목 프롬프트", key="analyze_content_prompt_message")
+
+    with st.expander("일일리포트 프롬프트"):
+        st.text_area("역할 프롬프트", key="daily_report_role_prompt_message")
+        st.text_area("기록 참조 프롬프트", key="daily_report_reference_prompt_message")
+        st.text_area("분석 항목 프롬프트", key="daily_report_content_prompt_message")
