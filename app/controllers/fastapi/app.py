@@ -177,12 +177,34 @@ def run_fastapi_app():
     # 타임캡슐 생성 API
     @app.post("/timecapsule/create", response_model=TimeCapsule)
     def create_timecapsule(req: TimeCapsuleRequest):
+        """
+        세션 대화 내용을 기반으로 타임캡슐을 생성합니다.
+        
+        role_message, reference_message, analyze_message가 빈 문자열("")이면
+        기본값을 사용합니다.
+        """
         try:
-            # 요청값과 관계없이 defaults.py의 기본값 사용, session_id만 요청에서 받음
+            # 빈 문자열이면 기본값 사용
+            role_message = (
+                req.role_message
+                if req.role_message.strip()
+                else DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE
+            )
+            reference_message = (
+                req.reference_message
+                if req.reference_message.strip()
+                else DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE
+            )
+            analyze_message = (
+                req.analyze_message
+                if req.analyze_message.strip()
+                else DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE
+            )
+            
             timecapsule = chat_service.make_timecapsule(
-                role_message=DEFAULT_TIMECAPSULE_ROLE_PROMPT_MESSAGE,
-                reference_message=DEFAULT_TIMECAPSULE_REFERENCE_PROMPT_MESSAGE,
-                analyze_message=DEFAULT_TIMECAPSULE_ANALYZE_PROMPT_MESSAGE,
+                role_message=role_message,
+                reference_message=reference_message,
+                analyze_message=analyze_message,
                 session_id=req.session_id,
             )
             return timecapsule
